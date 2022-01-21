@@ -2,7 +2,7 @@
 Image viewer for the [person detection example](https://github.com/kitsook/tflite-micro-sparkfun-edge-examples/tree/main/examples/person_detection) of
 [SparkFun Edge Development Board](https://www.sparkfun.com/products/15170).
 
-The person detection example can be modified to print out hexadeciaml dump of the images. This viewer can read them from serial port and diplay them.
+The person detection example can be modified to print out hexadeciaml dump of the images. This viewer can read them from serial port and display them.
 
 ## Modify the example
 - Uncomment the line to [enable the hex dump](https://github.com/kitsook/tflite-micro-sparkfun-edge-examples/blob/2ffe1fab709a7fd742404a05c9b144f346731d3c/examples/person_detection/image_provider.cc#L27)
