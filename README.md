@@ -14,8 +14,10 @@ The person detection example can be modified to print out hexadeciaml dump of th
 am_util_stdio_printf("\r\n");
 ```
 
-## Quick Start
+## Quickstart
 ```
+git clone https://github.com/kitsook/person_detection_viewer.git
+cd person_detection_viewer
 python3 -m venv venv
 . venv/bin/activate
 pip install -r requirements.txt
