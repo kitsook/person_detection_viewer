@@ -13,6 +13,7 @@ RE_START_LINE = re.compile(r"\+\+\+ frame \+\+\+")
 RE_END_LINE = re.compile(r"\-\-\- frame \-\-\-")
 RE_PERSON_SCORE_LINE = re.compile(r"Person score\: \-?([0-9]+) No person score\: \-?([0-9]+)")
 
+# score threshold for person detection
 IS_PERSON_THRESHOLD = 110
 
 buffer = bytearray()
@@ -20,17 +21,12 @@ buffer_started = False
 buffer_filled = False
 
 tk_image_label = None
-is_person = False
 
 def is_start_line(str):
-    if RE_START_LINE.search(str):
-        return True
-    return False
+    return RE_START_LINE.search(str) is not None
 
 def is_end_line(str):
-    if RE_END_LINE.search(str):
-        return True
-    return False
+    return RE_END_LINE.search(str) is not None
 
 def is_score_line(str):
     scores = RE_PERSON_SCORE_LINE.match(str)
@@ -46,14 +42,12 @@ def convert_line_to_byte_array(str):
         return None
 
 def add_to_buffer(str):
-    global buffer
     converted = convert_line_to_byte_array(str)
     if converted:
         buffer.extend(converted)
     else:
-        # problem reading data
-        buffer_started = False
-        print("Problem reading image. Resetting buffer")
+        print('Problem reading image. Resetting buffer')
+        new_buffer()
 
 def new_buffer():
     global buffer, buffer_started, buffer_filled
@@ -69,7 +63,7 @@ def end_of_buffer():
         buffer_filled = True
     buffer_started = False
 
-def display_image():
+def display_image(is_person = False):
     global tk_image_label
 
     image = Image.frombytes('L', (IMAGE_WIDTH, IMAGE_HEIGHT), bytes(buffer))
@@ -88,22 +82,25 @@ def display_image():
     tk_image_label.place(x=0, y=0)
 
 def process_line(line):
-    global buffer_filled, is_person
+    try:
+        str = line.decode('ascii')
 
-    str = line.decode('utf-8')
+        if is_start_line(str):
+            new_buffer()
+        elif is_end_line(str):
+            end_of_buffer()
+        elif buffer_started:
+            add_to_buffer(str)
+        else:
+            scores = is_score_line(str)
+            is_person = scores and int(scores[0]) > IS_PERSON_THRESHOLD
 
-    if is_start_line(str):
+            if buffer_filled:
+                display_image(is_person)
+    except Exception:
+        print('Problem processing line. Resetting buffer')
         new_buffer()
-    elif is_end_line(str):
-        end_of_buffer()
-    elif buffer_started:
-        add_to_buffer(str)
-    else:
-        scores = is_score_line(str)
-        is_person = scores and int(scores[0]) > IS_PERSON_THRESHOLD
 
-        if buffer_filled:
-            display_image()
 
 if __name__ == '__main__':
     root = tkinter.Tk()
